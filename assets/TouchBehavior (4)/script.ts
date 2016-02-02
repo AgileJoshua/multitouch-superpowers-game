@@ -25,7 +25,6 @@ class TouchBehavior extends Sup.Behavior {
     if(this.trackTouchIdentifier == null){
       //track touchstart to lock finger
       if(Sup.Input.wasTouchJustStarted()){
-           
         Sup.Input.getTouchesStarted().forEach(identifier=>{
           if(this.trackTouchIdentifier == null){
             let screenPos = Sup.Input.getTouchPosition(identifier);
@@ -39,15 +38,16 @@ class TouchBehavior extends Sup.Behavior {
       }
     }
     else{
-    
       //track my touch position and follow while moving.
-      let screenPos = Sup.Input.getTouchPosition(this.trackTouchIdentifier);
-      this.rayCaster = this.rayCaster.setFromCamera(this.camera,screenPos);
-      let pos = this.rayCaster.intersectPlane(this.movementPlane);
-      this.actor.setPosition(pos.point);
+      if(Sup.Input.wasTouchJustMoved(this.trackTouchIdentifier)){
+        let screenPos = Sup.Input.getTouchPosition(this.trackTouchIdentifier);
+        this.rayCaster = this.rayCaster.setFromCamera(this.camera,screenPos);
+        let pos = this.rayCaster.intersectPlane(this.movementPlane);
+        this.actor.setPosition(pos.point);
+      }
       
     //short tap on item (start and stop within 300ms) fires item
-      if(Sup.Input.wasTouchEnded(this.trackTouchIdentifier)){
+      if(Sup.Input.wasTouchJustEnded(this.trackTouchIdentifier) || !Sup.Input.isTouchDown(this.trackTouchIdentifier)){
         let tapEnd = Date.now();
         if(tapEnd - this.tapStart < 300){
           this.isFiring = true;
